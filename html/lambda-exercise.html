@@ -1,0 +1,722 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>Lambda Interactive Exercise</title>
+  <link href="main-html.css" rel="stylesheet" type="text/css" />
+  <link href="math-blockly.css" rel="stylesheet" type="text/css" />
+  <div id="headerbar">
+    <div id="titlebar">
+      <div id="tagline" class="largeheader">System F in Polymorphic Blocks</div>
+    </div>
+    <div id="navbar">
+      <div>
+        <div id="menulist">
+          <a class="menuitem" href="lambda-test.html">Builder</a>
+          <a class="menuitem" href="lambda-intro.html">Introduction</a>
+          <a class="menuitem" href="lambda-exercise.html">Exercise</a>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script type="text/x-mathjax-config">
+  /* Configure MathJax */
+  MathJax.Hub.Config({
+    config: ["MMLorHTML.js"],
+    jax: ["input/TeX","output/HTML-CSS","output/NativeMML", "output/CommonHTML", "output/SVG"],
+    extensions: ["tex2jax.js","MathMenu.js","MathZoom.js", "CHTML-preview.js"],
+    TeX: {
+      extensions: ["AMSmath.js","AMSsymbols.js","noErrors.js","noUndefined.js"]
+    }
+  });
+  </script>
+  <!-- Load MathJax !-->
+  <script src="../js/utils.js"></script>
+  <script>
+  loadMathjax();
+  </script>
+
+  <script src="../blockly/blockly_compressed.js"></script>
+  <script src="../blockly/msg/js/en.js"></script>
+  <script src="../blockly-type-indicator/typeIndicator.js"></script> <!-- indicate matching slots when dragging block !-->
+
+  <script src="../js/field_mathvariable.js"></script>
+  <script src="../js/latex-generator.js"></script>
+
+  <script>
+    function deleteBlock( block ) {
+      return( function(continuation) {
+        block.dispose(false, true); // Delete block with animation
+        continuation();
+      });
+    }
+    function loadXml( nodeId ) {
+      return( function(continuation) {
+        Blockly.Xml.domToWorkspace( workspace, document.getElementById( nodeId ) );
+        continuation();
+      });
+    }
+    function runSequence( queue ) {
+      if( queue ) {
+        var next = queue.shift();
+        if( goog.isFunction( next ) ) next( function() { runSequence( queue ) } );
+        else if( goog.isNumber( next ) ) setTimeout( next, function() { runSequence( queue ) } );
+      }
+    }
+    function doq2(){
+      workspace.getAllBlocks().forEach( function(x) { x.setEditable( false ); } );
+      Blockly.Events.disable();
+      var queue = [deleteBlock(  workspace.getBlockById("10") ), loadXml( "q2addition" ),
+        function(cont) {
+          workspace.getAllBlocks().forEach( function(x) {
+            x.setDisabled( false );
+            x.setMovable( true );
+            x.setEditable( true );
+            x.updateDisabled();
+          } );
+          Blockly.Events.enable();
+          cont();
+        }
+      ];
+      runSequence( queue );
+    }
+    function doq3(){
+      workspace.getAllBlocks().forEach( function(x) { x.setEditable( false ); } );
+      Blockly.Events.disable();
+      var queue = [deleteBlock(  workspace.getBlockById("20") ), loadXml( "q3addition" ),
+        function(cont) {
+          workspace.getAllBlocks().forEach( function(x) {
+            x.setDisabled( false );
+            x.setMovable( true );
+            x.setEditable( true );
+            x.updateDisabled();
+          } );
+          Blockly.Events.enable();
+          cont();
+        }
+      ];
+      runSequence( queue );
+    }
+    function doq4(){
+      workspace.getAllBlocks().forEach( function(x) { x.setEditable( false ); } );
+      Blockly.Events.disable();
+      var queue = [loadXml( "q4addition" ),
+        function(cont) {
+          workspace.getAllBlocks().forEach( function(x) {
+            x.setDisabled( false );
+            x.setMovable( true );
+            x.setEditable( true );
+            x.updateDisabled();
+          } );
+          Blockly.Events.enable();
+          cont();
+        }
+      ];
+      runSequence( queue );
+    }
+    function checkAnswer() {
+      var correct = false;
+      var topBlocks = workspace.getTopBlocks();
+      if( topBlocks.length == 1 ) {
+        Blockly.Events.disable();
+        correct = questionConfig[currentQuestion-1].solnsBlock.some( function(x) {  /* Does user's response match one of the allowable solutions? */
+          var result = compareBlocks( topBlocks[0], x);
+          return( result );
+        } );
+        Blockly.Events.enable();
+      }
+      if( correct ) {
+        goog.dom.getElement( "resultCorrect" ).style.display = "inline";
+        goog.dom.getElement( "resultIncorrect" ).style.display = "none";
+        if( currentQuestion == questionConfig.length ) {  /* Last question finished? */
+          goog.dom.getElement( "finished" ).style.display = "inline";
+        } else {
+          goog.dom.getElement( "nextButton" ).style.display = "inline";
+        }
+      } else {
+        goog.dom.getElement( "resultCorrect" ).style.display = "none";
+        goog.dom.getElement( "resultIncorrect" ).style.display = "inline";
+        goog.dom.getElement( "nextButton" ).style.display = "none";
+        goog.dom.getElement( "finished" ).style.display = "none";
+      }
+    }
+    var currentQuestion = 0;
+    function nextQuestion() {
+      if( currentQuestion > 0 ) {
+        goog.dom.getElement("q" + currentQuestion).style.display = "none";
+      }
+      goog.dom.getElement( "q" + (currentQuestion + 1) ).style.display = "inline";
+      currentQuestion++;
+      if( currentQuestion <= questionConfig.length ) {  /* Note: questions numbered from 1, array indexing from 0 */
+        Blockly.Events.disable();
+        var loadData = questionConfig[currentQuestion-1].loadData; /* Questions numbered from 1, array indexing from 0 */
+        if( goog.typeOf( loadData ) == "string" ) {
+          Blockly.Xml.domToWorkspace( workspace, document.getElementById( loadData ) );
+        } else if( goog.typeOf( loadData ) == "function" ) {
+          loadData();
+        }
+        Blockly.Events.enable();
+      }
+      goog.dom.getElement( "resultCorrect" ).style.display = "none";
+      goog.dom.getElement( "resultIncorrect" ).style.display = "inline";
+      goog.dom.getElement( "nextButton" ).style.display = "none";
+      goog.dom.getElement( "finished" ).style.display = "none";
+    }
+    var answerWorkspace;
+    function setupAnswers() {
+      if( answerWorkspace ) answerWorkspace.dispose();
+      answerWorkspace = new Blockly.Workspace();
+      for( i in questionConfig ) {
+        questionConfig[i].solnsBlock = [];
+        for( j in questionConfig[i].solns ) {
+          var child = goog.dom.getFirstElementChild( goog.dom.getElement( questionConfig[i].solns[j] ) );
+          var block = Blockly.Xml.domToBlockHeadless_( child, answerWorkspace );   /* Assuming that answer is stored as an XML node with a single block child */
+          questionConfig[i].solnsBlock[j] = block;
+        }
+      }
+    }
+
+    function areLambdaExpressionsEquivalent(expr1, expr2) {
+      // Remove whitespace and unwrap parentheses
+      expr1 = expr1.replace(/\s+/g, '').replace(/\\(left|right)\(|\)/g, '');
+      expr2 = expr2.replace(/\s+/g, '').replace(/\\(left|right)\(|\)/g, '');
+
+      // Replace LaTeX syntax with standard symbols
+      expr1 = expr1.replace(/\\lambda/g, 'λ').replace(/\\forall/g, '∀').replace(/\\Lambda/g, 'Λ')
+              .replace(/\\not=/g, '≠').replace(/\\leq/g, '≤').replace(/\\geq/g, '≥').replace(/\\times/g, '×');
+      expr2 = expr2.replace(/\\lambda/g, 'λ').replace(/\\forall/g, '∀').replace(/\\Lambda/g, 'Λ')
+              .replace(/\\not=/g, '≠').replace(/\\leq/g, '≤').replace(/\\geq/g, '≥').replace(/\\times/g, '×');
+
+      function parseLambdaExpression(expr) {
+        let index = 0;
+
+        function parseExpr() {
+          if (expr[index] === 'λ' || expr[index] === '∀' || expr[index] === 'Λ') {
+            const binder = expr[index++];
+            const varName = parseVarName();
+            let type = null;
+            if (binder !== 'Λ' && expr[index] === ':') {
+              type = parseType();
+            }
+            expect('.');
+            const body = parseExpr();
+            return { binder, varName, type, body };
+          } else {
+            let left = parseApplication();
+            while (index < expr.length && /[+\-×<>≤≥=≠]/.test(expr[index])) {
+              const operator = expr[index++];
+              const right = parseApplication();
+              left = { type: 'binaryOperation', operator, left, right };
+            }
+            return left;
+          }
+        }
+
+        function parseApplication() {
+          let left = parseAtom();
+          while (index < expr.length && /[a-zA-Z]/.test(expr[index])) {
+            const right = parseAtom();
+            left = { type: 'application', left, right };
+          }
+          return left;
+        }
+
+        function parseAtom() {
+          if (/[a-zA-Z]/.test(expr[index])) {
+            return parseVarName();
+          } else if (/\d/.test(expr[index])) {
+            return parseNumber();
+          } else {
+            throw new Error(`Unexpected character: ${expr[index]}`);
+          }
+        }
+
+        function parseVarName() {
+          let varName = '';
+          while (index < expr.length && /[a-zA-Z]/.test(expr[index])) {
+            varName += expr[index++];
+          }
+          return varName;
+        }
+
+        function parseType() {
+          expect(':');
+          let type = '';
+          while (index < expr.length && /[a-zA-Z\d]/.test(expr[index])) {
+            type += expr[index++];
+          }
+          return type;
+        }
+
+        function parseNumber() {
+          let number = '';
+          while (index < expr.length && /\d/.test(expr[index])) {
+            number += expr[index++];
+          }
+          return { type: 'number', value: parseInt(number, 10) };
+        }
+
+        function expect(expected) {
+          if (expr[index] !== expected) {
+            throw new Error(`Expected '${expected}', but found '${expr[index]}'`);
+          }
+          index++;
+        }
+
+        return parseExpr();
+      }
+
+      function areASTsEquivalent(ast1, ast2, boundVars1 = new Set(), boundVars2 = new Set(), typeVarMap = {}) {
+        if (ast1.type !== ast2.type) {
+          return false;
+        }
+
+        if (ast1.type === 'number') {
+          return ast1.value === ast2.value;
+        }
+
+        if (typeof ast1 === 'string') {
+          // Check if the variable is bound in both ASTs
+          const isBound1 = boundVars1.has(ast1);
+          const isBound2 = boundVars2.has(ast2);
+          if (isBound1 && isBound2) {
+            return true;
+          } else if (!isBound1 && !isBound2) {
+            // Free variables must match exactly
+            return ast1 === ast2;
+          } else {
+            // Variable is bound in one AST but free in the other
+            return false;
+          }
+        }
+
+        if (ast1.binder) {
+          const newBoundVars1 = new Set(boundVars1).add(ast1.varName);
+          const newBoundVars2 = new Set(boundVars2).add(ast2.varName);
+          const newTypeVarMap = ast1.binder === 'Λ' ? { ...typeVarMap, [ast1.varName]: ast2.varName } : typeVarMap;
+          return areASTsEquivalent(ast1.body, ast2.body, newBoundVars1, newBoundVars2, newTypeVarMap);
+        }
+
+        if (ast1.type === 'application') {
+          return (
+                  areASTsEquivalent(ast1.left, ast2.left, boundVars1, boundVars2, typeVarMap) &&
+                  areASTsEquivalent(ast1.right, ast2.right, boundVars1, boundVars2, typeVarMap)
+          );
+        }
+
+        if (ast1.type === 'binaryOperation') {
+          if (ast1.operator !== ast2.operator) {
+            // Check for equivalent operators
+            if (
+                    (ast1.operator === '<' && ast2.operator === '>') ||
+                    (ast1.operator === '>' && ast2.operator === '<') ||
+                    (ast1.operator === '≤' && ast2.operator === '≥') ||
+                    (ast1.operator === '≥' && ast2.operator === '≤')
+            ) {
+              return (
+                      areASTsEquivalent(ast1.left, ast2.right, boundVars1, boundVars2, typeVarMap) &&
+                      areASTsEquivalent(ast1.right, ast2.left, boundVars1, boundVars2, typeVarMap)
+              );
+            }
+            return false;
+          }
+
+          // Check for commutativity of + and ×
+          if (ast1.operator === '+' || ast1.operator === '×') {
+            return (
+                    (areASTsEquivalent(ast1.left, ast2.left, boundVars1, boundVars2, typeVarMap) &&
+                            areASTsEquivalent(ast1.right, ast2.right, boundVars1, boundVars2, typeVarMap)) ||
+                    (areASTsEquivalent(ast1.left, ast2.right, boundVars1, boundVars2, typeVarMap) &&
+                            areASTsEquivalent(ast1.right, ast2.left, boundVars1, boundVars2, typeVarMap))
+            );
+          }
+
+          return (
+                  areASTsEquivalent(ast1.left, ast2.left, boundVars1, boundVars2, typeVarMap) &&
+                  areASTsEquivalent(ast1.right, ast2.right, boundVars1, boundVars2, typeVarMap)
+          );
+        }
+
+        throw new Error(`Unknown AST node type: ${ast1.type}`);
+      }
+
+      // Parse expressions into ASTs
+      const ast1 = parseLambdaExpression(expr1);
+      const ast2 = parseLambdaExpression(expr2);
+
+      // Compare ASTs for alpha equivalence
+      return areASTsEquivalent(ast1, ast2);
+    }
+
+    function compareBlocks( b1, b2) {
+      var ans = Blockly.Latex.workspaceToCode( workspace );
+      var sol = Blockly.Latex.workspaceToCode( answerWorkspace ).split('\\\\');
+      console.log(ans);
+      console.log(sol[currentQuestion-1]);
+      return( areLambdaExpressionsEquivalent( sol[currentQuestion-1], ans ) );
+    }
+  </script>  <!-- Load code !-->
+  <script src="../js/latex-generator.js"></script>
+  <script src="../js/lambda-latex.js"></script>
+  <script>
+    Blockly.Blocks['abs'] = {
+      init: function() {
+        var A = Blockly.TypeVar.getUnusedTypeVar();
+        var B = Blockly.TypeVar.getUnusedTypeVar();
+        this.appendDummyInput("V").appendField("λ").appendField(new Blockly.FieldMathVariable("x"), "VAR");
+        this.appendDummyInput("T").appendField(":").appendField(new Blockly.FieldDropdown([['Int', 'Int'],['Bool', 'Bool'],['X','X'],['Y','Y']], function(type) { this.sourceBlock_.changed_(type) }), 'TYPE');
+        this.appendValueInput("TERM").setTypeExpr(B).appendField(".");
+        this.setInputsInline(true);
+        this.setOutput(true);
+        this.setOutputTypeExpr(new Blockly.TypeExpr ("fun", [A, B]));
+        this.setColourByType();
+        this.changed_( this.getFieldValue( "TYPE" ) );
+      },
+      changed_: function(type) {
+        if( type == "Bool" ) {
+          var B = Blockly.TypeVar.getUnusedTypeVar();
+          this.getInput("TERM").setTypeExpr(B);
+          this.setOutputTypeExpr(new Blockly.TypeExpr ("fun", [new Blockly.TypeExpr('Boolean'), B]));
+        } else if( type == "Int" ) {
+          var B = Blockly.TypeVar.getUnusedTypeVar();
+          this.getInput("TERM").setTypeExpr(B);
+          this.setOutputTypeExpr(new Blockly.TypeExpr ("fun", [new Blockly.TypeExpr('Number'), B]));
+        } else {
+          var A = Blockly.TypeVar.getUnusedTypeVar();
+          var B = Blockly.TypeVar.getUnusedTypeVar();
+          this.getInput("TERM").setTypeExpr(B);
+          this.setOutputTypeExpr(new Blockly.TypeExpr ("fun", [A, B]));
+        }
+      }
+    };
+    Blockly.Blocks['absF'] = {
+      init: function() {
+        var A = Blockly.TypeVar.getUnusedTypeVar();
+        var B = Blockly.TypeVar.getUnusedTypeVar();
+        this.appendDummyInput("V").appendField("λ").appendField(new Blockly.FieldMathVariable("f"), "VAR");
+        this.appendDummyInput("T").appendField(":").appendField(new Blockly.FieldDropdown([ ['Int → Int', 'Int → Int'],['Bool → Bool', 'Bool → Bool'],['Int → Bool', 'Int → Bool'],['Bool → Int', 'Bool → Int'], ['X → X','X → X'], ['Y → Y','Y → Y'],['X → Y','X → Y'], ['Y → X','Y → X']], function(type) { this.sourceBlock_.changed_(type) }), 'TYPE');
+        this.appendValueInput("TERM").setTypeExpr(B).appendField(".");
+        this.setInputsInline(true);
+        this.setOutput(true);
+        this.setOutputTypeExpr(new Blockly.TypeExpr ("fun", [A, B]));
+        this.setColourByType();
+        this.changed_( this.getFieldValue( "TYPE" ) );
+      },
+      changed_: function(type) {
+        if( type == "Bool → Bool" ) {
+          var B = Blockly.TypeVar.getUnusedTypeVar();
+          this.getInput("TERM").setTypeExpr(B);
+          this.setOutputTypeExpr(new Blockly.TypeExpr ("fun", [new Blockly.TypeExpr ("fun", [new Blockly.TypeExpr('Boolean'), new Blockly.TypeExpr('Boolean')]), B]));
+        } else if( type == "Int → Int" ) {
+          var B = Blockly.TypeVar.getUnusedTypeVar();
+          this.getInput("TERM").setTypeExpr(B);
+          this.setOutputTypeExpr(new Blockly.TypeExpr ("fun", [new Blockly.TypeExpr ("fun", [new Blockly.TypeExpr('Number'), new Blockly.TypeExpr('Number')]), B]));
+        } else if( type == "Int → Bool" ) {
+          var B = Blockly.TypeVar.getUnusedTypeVar();
+          this.getInput("TERM").setTypeExpr(B);
+          this.setOutputTypeExpr(new Blockly.TypeExpr ("fun", [new Blockly.TypeExpr ("fun", [new Blockly.TypeExpr('Number'), new Blockly.TypeExpr('Boolean')]), B]));
+        } else if( type == "Bool → Int" ) {
+          var B = Blockly.TypeVar.getUnusedTypeVar();
+          this.getInput("TERM").setTypeExpr(B);
+          this.setOutputTypeExpr(new Blockly.TypeExpr ("fun", [new Blockly.TypeExpr ("fun", [new Blockly.TypeExpr('Boolean'), new Blockly.TypeExpr('Number')]), B]));
+        } else if ( type == "X → X" || type == "Y → Y" || type == "A → A" || type == "B → B" ) {
+          var A = Blockly.TypeVar.getUnusedTypeVar();
+          var C = Blockly.TypeVar.getUnusedTypeVar();
+          this.getInput("TERM").setTypeExpr(C);
+          this.setOutputTypeExpr(new Blockly.TypeExpr ("fun", [new Blockly.TypeExpr ("fun", [A, A]), C]));
+        } else {
+          var A = Blockly.TypeVar.getUnusedTypeVar();
+          var B = Blockly.TypeVar.getUnusedTypeVar();
+          var C = Blockly.TypeVar.getUnusedTypeVar();
+          this.getInput("TERM").setTypeExpr(C);
+          this.setOutputTypeExpr(new Blockly.TypeExpr ("fun", [new Blockly.TypeExpr ("fun", [A, B]), C]));
+        }
+      }
+    };
+    Blockly.Blocks['app'] = {
+      init: function() {
+        var A = Blockly.TypeVar.getUnusedTypeVar();
+        var B = Blockly.TypeVar.getUnusedTypeVar();
+        this.appendValueInput("TERM1").setTypeExpr(new Blockly.TypeExpr ("fun", [A, B]));
+        this.appendValueInput("TERM2").setTypeExpr(A).appendField("(");
+        this.appendDummyInput().appendField(")");
+        this.setInputsInline(true);
+        this.setOutput(true);
+        this.setOutputTypeExpr(B);
+        this.setColourByType();
+      }
+    };
+    Blockly.Blocks['var'] = {
+      init: function() {
+        this.appendDummyInput().appendField(new Blockly.FieldMathVariable("x", "Number"), "VARNAME");
+        this.setOutput(true);
+        var A = Blockly.TypeVar.getUnusedTypeVar();
+        this.setOutputTypeExpr(A);
+        this.setColourByType();
+        this.setInputsInline(true);
+      },
+      getVars: function() {return [[this.getFieldValue('VARNAME'), "Number"]];}
+    };
+    Blockly.Blocks['func'] = {
+      init: function() {
+        var A = Blockly.TypeVar.getUnusedTypeVar();
+        var B = Blockly.TypeVar.getUnusedTypeVar();
+        this.appendDummyInput().appendField(new Blockly.FieldMathVariable("f"), "VARNAME");
+        this.setOutput(true);
+        this.setOutputTypeExpr(new Blockly.TypeExpr ("fun", [A, B]));
+        this.setColourByType();
+      },
+      getVars: function() {return [[this.getFieldValue('VARNAME'), "Number"]];}
+    };
+    Blockly.Blocks['typeAbs'] = {
+      init: function() {
+        var A = new Blockly.TypeExpr('Vector')
+        var B = Blockly.TypeVar.getUnusedTypeVar();
+        this.appendDummyInput().appendField("Λ").appendField(new Blockly.FieldMathVariable("X"), "VAR");
+        this.appendValueInput("TERM").setTypeExpr(B).appendField(".");
+        this.setInputsInline(true);
+        this.setOutput(true);
+        this.setOutputTypeExpr(new Blockly.TypeExpr ("fun", [A, B]));
+        this.setColourByType();
+      }
+    };
+    Blockly.Blocks['typeApp'] = {
+      init: function() {
+        var A = new Blockly.TypeExpr('Vector')
+        var B = Blockly.TypeVar.getUnusedTypeVar();
+        this.appendValueInput("TERM").setTypeExpr(new Blockly.TypeExpr ("fun", [A, B]))
+        this.appendValueInput("TYPE").setCheck("Vector").appendField("[");
+        this.appendDummyInput().appendField("]");
+        this.setInputsInline(true);
+        this.setOutput(true);
+        this.setOutputTypeExpr(B);
+        this.setColourByType();
+      }
+    };
+    Blockly.Blocks['typeVari'] = {
+      init: function() {
+        this.appendDummyInput().appendField(new Blockly.FieldMathVariable("A", "Vector"), "VARNAME");
+        this.setOutput(true, "Vector");
+        this.setColourByType();
+      },
+      getVars: function() {return [['type',"Vector"]];}
+    };
+    Blockly.Blocks['typeFunc'] = {
+      init: function() {
+        this.appendValueInput('TYPE1').setCheck("Vector")
+        this.appendValueInput('TYPE2').setCheck("Vector").appendField("→");
+        this.setInputsInline(true);
+        this.setOutput(true, "Vector");
+        this.setColourByType();
+      },
+      getVars: function() {return [['type',"Vector"]];}
+    };
+    Blockly.Blocks['typeUniv'] = {
+      init: function() {
+        var B = Blockly.TypeVar.getUnusedTypeVar();
+        this.appendDummyInput().appendField("∀").appendField(new Blockly.FieldMathVariable("X"), "VAR");
+        this.appendValueInput("TERM").setTypeExpr(B).appendField(".");
+        this.setInputsInline(true);
+        this.setOutput(true);
+        this.setOutputTypeExpr(B);
+        this.setColourByType();
+      }
+    };
+    Blockly.Blocks['types'] = {
+      init: function() {
+        this.appendDummyInput().appendField(new Blockly.FieldDropdown([['Bool', 'Bool'], ['Int', 'Int']]), 'TYPE');
+        this.setOutput(true, "Vector");
+        this.setColourByType();
+      },
+      getVars: function() {
+        return [['type',"Vector"]];
+      }
+    };
+    Blockly.Blocks['number'] = {
+      init: function() {
+        this.appendDummyInput().appendField(new Blockly.FieldNumber('1', Blockly.FieldTextInput.numberValidator), 'NUM');
+        this.setOutput(true, 'Number');
+        this.setColourByType();
+      }
+    };
+    Blockly.Blocks['arithmetic'] = {
+      init: function() {
+        this.setOutput(true, 'Number');
+        this.appendValueInput('A').setCheck('Number');
+        this.appendDummyInput().appendField(new Blockly.FieldDropdown([['+', 'ADD'], ['-', 'MINUS'], ['\u00D7', 'MULTIPLY'], ['\u00F7', 'DIVIDE'], ['^', 'POWER']]), 'OP');
+        this.appendValueInput('B').setCheck('Number');
+        this.setInputsInline(true);
+        this.setColourByType();
+      }
+    };
+    Blockly.Blocks['bool'] = {
+      init: function() {
+        this.appendDummyInput().appendField(new Blockly.FieldDropdown([[Blockly.Msg.LOGIC_BOOLEAN_TRUE, 'T'], [Blockly.Msg.LOGIC_BOOLEAN_FALSE, 'F']]), 'VAL');
+        this.setOutput(true, "Boolean");
+        this.setColourByType();
+      },
+    };
+    Blockly.Blocks['comp'] = {
+      init: function() {
+        var OPERATORS = [['=', '='], ['\u2260', '≠'], ['<', '<'], ['\u2264', '≤'], ['>', '>'], ['\u2265', '≥']];
+        this.setOutput(true, 'Boolean');
+        this.appendValueInput('A')
+                .setCheck(['Number', 'Boolean','A']);
+        this.appendValueInput('B')
+                .setCheck(['Number', 'Boolean','A'])
+                .appendField(new Blockly.FieldDropdown(OPERATORS), 'OP');
+        this.setInputsInline(true);
+        this.setColourByType();
+      }
+    };
+  </script>
+
+  <script>
+  var questionConfig = [
+    {solns: ["q1solution"], loadData: "q1initial"},
+    {solns: ["q2solution"], loadData: doq2},
+    {solns: ["q3solution"], loadData: doq3},
+    {solns: ["q4solution"], loadData: doq4},
+  ];
+  </script>
+</head>
+<body>
+
+  <h1>Translation from Description to Expression</h1>
+  <div id="q1" class="question">Q1. Use the blocks provided to assemble a function that <em>takes an Integer input and returns it plus 1</em>.</div>
+  <div id="q2" class="question">Q2. Use the blocks provided to assemble a function that <em>takes an Input of ANY type and returns it as is</em>.</div>
+  <div id="q3" class="question">Q3. Use the blocks provided to assemble a function that <em>first takes in the type of the input and then the input, and returns the input as is</em>.</div>
+  <div id="q4" class="question">Q4. Now correctly complete your expression with the newly provided application blocks and inputs, <em> it should form one single block which evaluates to 1 after all reductions.</em>.</div>
+  <div id="blocklyDiv" style="height: 400px; width: 100%;"></div>
+  <input type="button" value="Check answer" onclick="checkAnswer();"/>
+  <div style="text-align: center;">
+    <div id="mathjax-output" style="text-align: center;"></div>
+    <span id="resultIncorrect" style="color: red; display: none;">Not quite there yet...</span>
+    <div id="resultCorrect" style="display: none;">
+      <div style="color: #00aa00; text-weight: bold; font-size: x-large">Correct!</div>
+      <div id="nextButton">
+        <a href="#" onclick="nextQuestion();">Click here to advance to the next question</a>
+      </div>
+      <div id="finished" style="color: #0000aa; text-weight: bold; font-size: x-large; display: none;">
+        Finished.
+      </div>
+    </div>
+  </div>
+
+  <xml id="q1initial" style="display: none;">
+    <block type="abs" id="10" x="607" y="110"></block>
+    <block type="arithmetic" id="11" x="632" y="200"></block>
+    <block type="number" id="12" x="690" y="262">></block>
+    <block type="var" id="13" x="630" y="263"></block>
+  </xml>
+  <xml xmlns="http://www.w3.org/1999/xhtml" id="q1solution">
+    <block type="abs" id="10" x="557" y="87">
+      <field name="TYPE">Int</field>
+      <value name="TERM">
+        <block type="arithmetic" id="11">
+          <value name="A">
+            <block type="var" id="13">
+              <field name="VARNAME">x</field>
+            </block>
+          </value>
+          <value name="B">
+            <block type="number" id="12">
+              <field name="NUM">1</field>
+            </block>
+          </value>
+        </block>
+      </value>
+    </block>
+  </xml>
+
+  <xml xmlns="http://www.w3.org/1999/xhtml" id="q2addition">
+    <block type="typeUniv" id="20" x="580" y="110"></block>
+    <block type="abs" id="21" x="600" y="180"></block>
+    <block type="var" id="22" x="700" y="260"></block>
+  </xml>
+  <xml xmlns="http://www.w3.org/1999/xhtml" id="q2solution">
+    <block type="typeUniv" id="20">
+      <value name="TERM">
+        <block type="abs" id="21">
+          <field name="TYPE">X</field>
+          <value name="TERM">
+            <block type="var" id="22"></block>
+          </value>
+        </block>
+      </value>
+    </block>
+  </xml>
+
+  <xml xmlns="http://www.w3.org/1999/xhtml" id="q3addition">
+    <block type="typeAbs" id="30" x="580" y="110"></block>
+    <block type="abs" id="31" x="600" y="180"></block>
+    <block type="var" id="32" x="700" y="260"></block>
+  </xml>
+  <xml xmlns="http://www.w3.org/1999/xhtml" id="q3solution">
+    <block type="typeAbs" id="30">
+      <value name="TERM">
+        <block type="abs" id="31">
+          <field name="TYPE">X</field>
+          <value name="TERM">
+            <block type="var" id="32"></block>
+          </value>
+        </block>
+      </value>
+    </block>
+  </xml>
+
+  <xml xmlns="http://www.w3.org/1999/xhtml" id="q4addition">
+    <block type="app" id="40" x="420" y="110"></block>
+    <block type="typeApp" id="41" x="420" y="210"></block>
+    <block type="types" id="45" x="700" y="300"></block>
+    <block type="number" id="46" x="600" y="300"></block>
+  </xml>
+
+  <xml xmlns="http://www.w3.org/1999/xhtml" id="q4solution">
+    <block type="app" id="40">
+      <value name="TERM1">
+        <block type="typeApp" id="41">
+          <value name="TERM">
+            <block type="typeAbs" id="30">
+              <value name="TERM">
+                <block type="abs" id="31">
+                  <field name="TYPE">X</field>
+                  <value name="TERM">
+                    <block type="var" id="32"></block>
+                  </value>
+                </block>
+              </value>
+            </block>
+          </value>
+          <value name="TYPE">
+            <block type="types" id="45">
+              <field name="TYPE">Int</field>
+            </block>
+          </value>
+        </block>
+      </value>
+      <value name="TERM2">
+        <block type="number" id="46"></block>
+      </value>
+    </block>
+  </xml>
+
+  <script>
+    var workspace = Blockly.inject('blocklyDiv',
+        {
+          media: '../blockly/media/',
+          disable: false,
+          toggleInline: false
+        });
+
+    nextQuestion(); /* Note: nextQuestion() must come before setupAnswers() */
+    setupAnswers();
+
+    setupAutoLatex(workspace);
+
+    var gChangeListener = workspace.addChangeListener( checkAnswer );
+  </script>
+
+</body>
+</html>

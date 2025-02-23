@@ -1,0 +1,371 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>Lambda Blocks Introduction</title>
+  <link href="main-html.css" rel="stylesheet" type="text/css" />
+  <link href="math-blockly.css" rel="stylesheet" type="text/css" />
+  <div id="headerbar">
+    <div id="titlebar">
+      <div id="tagline" class="largeheader">System F in Polymorphic Blocks</div>
+    </div>
+    <div id="navbar">
+      <div>
+        <div id="menulist">
+          <a class="menuitem" href="lambda-test.html">Builder</a>
+          <a class="menuitem" href="lambda-intro.html">Introduction</a>
+          <a class="menuitem" href="lambda-exercise.html">Exercise</a>
+        </div>
+      </div>
+    </div>
+  </div>
+  
+  <script src="../blockly/blockly_compressed.js"></script>
+  <script src="../blockly/msg/js/en.js"></script>
+  <script src="../blockly-type-indicator/typeIndicator.js"></script> <!-- indicate matching slots when dragging block !-->
+  <script src="../js/utils.js"></script>
+
+  <script type="text/x-mathjax-config">
+  /* Configure MathJax */
+  MathJax.Hub.Config({
+    config: ["MMLorHTML.js"],
+    jax: ["input/TeX","output/HTML-CSS","output/NativeMML", "output/CommonHTML", "output/SVG"],
+    extensions: ["tex2jax.js","MathMenu.js","MathZoom.js", "CHTML-preview.js"],
+    TeX: {
+      extensions: ["AMSmath.js","AMSsymbols.js","noErrors.js","noUndefined.js"]
+    }
+  });
+  </script>
+  <!-- Load MathJax !-->
+  <script>loadMathjax();</script>
+
+  <script src="../js/field_mathvariable.js"></script>
+  <script src="../blockly/javascript_compressed.js"></script>
+  <script src="../js/lambda-blocks.js"></script>
+  <script src="../js/latex-generator.js"></script>
+  <script src="../js/lambda-latex.js"></script>
+  <script>
+  var workspace = [];  /* Array of workspaces for each question */
+  function dumpXML(n) {
+    var xml = Blockly.Xml.workspaceToDom(workspace[n-1]);
+    var xml_text = Blockly.Xml.domToPrettyText(xml);
+    console.log( xml_text );
+  }
+
+  function cheat(n) {
+    workspace[n-1].clear();
+    var xmlNode = goog.dom.getElement('q'+n+'answer');
+//    console.log( "Cheat(" + n + "): ", xmlNode );
+    if( xmlNode ) Blockly.Xml.domToWorkspace(workspace[n-1],xmlNode);
+  }
+
+  function reset(n) {
+    workspace[n-1].clear();
+    var xmlNode = goog.dom.getElement('q'+n+'initial');
+//    console.log( "Reset(" + n + "): ", xmlNode );
+    if( xmlNode ) Blockly.Xml.domToWorkspace(workspace[n-1],xmlNode);
+  }
+  </script>
+</head>
+<body>
+  <h1>Typed Lambda Calculus in Blockly</h1>
+  
+  <p><br><span style="font-style: italic;">Let's start with the basics, here we have some examples of typed lambda expression and their from in Blockly Blocks.</span></p>
+
+  <div class="q">
+    <div>
+      Here the λ symbol represents the lambda abstraction, :[Int] represents its type is Integer, the dot separates the variable to be substituted from the expression body.
+      The expression below represents a function that takes an integer and returns the integer plus one, and 2 is the input value.
+      \[
+      (\lambda x:[Int].x≠1)(2)
+      \]
+    </div>
+    <div id="blocklyDiv1" style="height: 100px; width: 100%;" class="blocklyWorkspace"></div>
+  </div>
+  
+  <div class="q">
+    <div>
+      In the Blockly representation, the shape and colours of the blocks represents its type.
+      Integer type is represented with blue blocks with round protrusion, Boolean type is represented with green blocks with triangular protrusion.
+      the type of the teal lambda expression block is a function that takes an Integer and returns an Integer written as [Int → Bool],
+      this translates into one spike between two round protrusion and two outer sidebars on the shape of the block.
+      By the process of beta reduction, the variable x in the term is substituted with the input value of 2, leaving:
+      \[
+      2≠1 \text{ | } true
+      \]
+    </div>
+    <div>
+      We can also use type variables to abstract over types. Below we have a similar expression checking the input is not equal to 1,
+      Here input can be any type, abstracted as A. This is also pronounced in the shape of the lambda block.
+      \[
+      (\lambda x:[A].x≠1)(input)
+      \]
+    </div>
+    <div id="blocklyDiv2" style="height: 100px; width: 100%;" class="blocklyWorkspace"></div>
+
+  </div>
+  
+  <div class="q">
+    <div>
+      The same idea can be applied on the concept of types. Here we have a similar expression to describe the type of the teal lambda block above,
+      we notice it has the same structure as above except it uses the upper case lambda to distinguish it is for type abstraction.
+      \[
+      (Λ A.A → Bool)[input\_type]
+      \]
+    </div>
+    <div id="blocklyDiv3" style="height: 100px; width: 100%;" class="blocklyWorkspace"></div>
+    <div>
+      Its evaluation process is the same as above, variable 'A' in the term 'A -> Bool' is to be substituted by the input,
+      which should be the type of the input variable in the previous out-most green block:
+    </div>
+  </div>
+
+  <div class="q">
+    <div id="blocklyDiv4" style="height: 100px; width: 100%;" class="blocklyWorkspace"></div>
+    <div>
+      \[
+      [Int → Bool]
+      \]
+    </div>
+  </div>
+
+  <div class="q">
+    <div>
+      Additionally, we can also abstract over functions in lambda expressions, in another term, function can be taken as an input of another function.
+      Doing so we can create a lambda function that takes a function and applies it onto 2, in similar term like previous examples.
+      Notice below the type of the function f is represented by [X], you can change it to any function type with input type being Integer, ie. [Int → Bool].
+    </div>
+    <div>
+      \[
+      (\lambda f:[X].f(2))(input)
+      \]
+    </div>
+    <div id="blocklyDiv5" style="height: 120px; width: 100%;" class="blocklyWorkspace"></div>
+
+    <div>
+     for example, we can have the following expression:
+    </div>
+    <div>
+      \[
+      (\lambda f:[Int → Bool].f(2))(\lambda x:[Int].x≠1)
+      \]
+    </div>
+    <div id="blocklyDiv6" style="height: 135px; width: 100%;" class="blocklyWorkspace"></div>
+    <div>
+      And this reduces to the first expression above by substituting the function f with the lambda x expression.
+    </div>
+    <div>
+      \[
+      (\lambda x:[Int].x≠1)(2)
+      \]
+    </div>
+
+  </div>
+
+
+  <br>
+ 
+  <!-- Blockly XML !-->
+  <xml xmlns="http://www.w3.org/1999/xhtml" id="q1initial">
+    <block type="app" x="475" y="15">
+      <value name="TERM1">
+        <block type="abs">
+          <field name="VAR">x</field>
+          <field name="TYPE">Int</field>
+          <value name="TERM">
+            <block type="comp">
+              <field name="OP">≠</field>
+              <value name="A">
+                <block type="var">
+                  <field name="VARNAME">x</field>
+                  <field name="TYPE">Int</field>
+                </block>
+              </value>
+              <value name="B">
+                <block type="number">
+                  <field name="NUM">1</field>
+                </block>
+              </value>
+            </block>
+          </value>
+        </block>
+      </value>
+      <value name="TERM2">
+        <block type="number">
+          <field name="NUM">2</field>
+        </block>
+      </value>
+    </block>
+  </xml>
+  <xml xmlns="http://www.w3.org/1999/xhtml" id="q2initial">
+    <block type="app" x="475" y="15">
+      <value name="TERM1">
+        <block type="abs">
+          <field name="VAR">x</field>
+          <field name="TYPE">A</field>
+          <value name="TERM">
+            <block type="comp">
+              <field name="OP">≠</field>
+              <value name="A">
+                <block type="var">
+                  <field name="VARNAME">x</field>
+                  <field name="TYPE">A</field>
+                </block>
+              </value>
+              <value name="B">
+                <block type="number">
+                  <field name="NUM">1</field>
+                </block>
+              </value>
+            </block>
+          </value>
+        </block>
+      </value>
+      <value name="TERM2">
+      </value>
+    </block>
+  </xml>
+  <xml xmlns="http://www.w3.org/1999/xhtml" id="q3initial">
+    <block type="typeApp" x="475" y="15">
+      <value name="TERM">
+        <block type="typeAbs">
+          <field name="VAR">A</field>
+          <value name="TERM">
+            <block type="typeFunc">
+              <value name="TYPE1">
+                <block type="typeVari">
+                  <field name="VARNAME">A</field>
+                </block>
+              </value>
+              <value name="TYPE2">
+                <block type="types">
+                  <field name="TYPE">Bool</field>
+                </block>
+              </value>
+            </block>
+          </value>
+        </block>
+      </value>
+      <value name="TYPE">
+      </value>
+    </block>
+  </xml>
+  <xml xmlns="http://www.w3.org/1999/xhtml" id="q4initial">
+    <block type="typeApp" x="475" y="15">
+      <value name="TERM">
+        <block type="typeAbs">
+          <field name="VAR">A</field>
+          <value name="TERM">
+            <block type="typeFunc">
+              <value name="TYPE1">
+                <block type="typeVari">
+                  <field name="VARNAME">A</field>
+                </block>
+              </value>
+              <value name="TYPE2">
+                <block type="types">
+                  <field name="TYPE">Bool</field>
+                </block>
+              </value>
+            </block>
+          </value>
+        </block>
+      </value>
+      <value name="TYPE">
+        <block type="typeVari">
+          <field name="VARNAME">Int</field>
+        </block>
+      </value>
+    </block>
+  </xml>
+  <xml xmlns="http://www.w3.org/1999/xhtml" id="q5initial">
+    <block type="app" x="475" y="15">
+      <value name="TERM1">
+        <block type="absF">
+          <field name="VAR">f</field>
+          <field name="TYPE">X</field>
+          <value name="TERM">
+            <block type="app">
+              <value name="TERM1">
+                <block type="func">
+                </block>
+              </value>
+              <value name="TERM2">
+                <block type="number">
+                  <field name="NUM">2</field>
+                </block>
+              </value>
+            </block>
+          </value>
+        </block>
+      </value>
+      <value name="TERM2">
+      </value>
+    </block>
+  </xml>
+  <xml xmlns="http://www.w3.org/1999/xhtml" id="q6initial">
+    <block type="app" x="475" y="15">
+      <value name="TERM1">
+        <block type="absF">
+          <field name="VAR">f</field>
+          <field name="TYPE">Int → Bool</field>
+          <value name="TERM">
+            <block type="app">
+              <value name="TERM1">
+                <block type="func">
+                </block>
+              </value>
+              <value name="TERM2">
+                <block type="number">
+                  <field name="NUM">2</field>
+                </block>
+              </value>
+            </block>
+          </value>
+        </block>
+      </value>
+      <value name="TERM2">
+                <block type="abs">
+                  <field name="VAR">x</field>
+                  <field name="TYPE">Int</field>
+                  <value name="TERM">
+                    <block type="comp">
+                      <field name="OP">≠</field>
+                      <value name="A">
+                        <block type="var">
+                          <field name="VARNAME">x</field>
+                          <field name="TYPE">Int</field>
+                        </block>
+                      </value>
+                      <value name="B">
+                        <block type="number">
+                          <field name="NUM">1</field>
+                        </block>
+                      </value>
+                    </block>
+                  </value>
+                </block>
+      </value>
+    </block>
+  </xml>
+
+  <script>
+    var zoomOn = {controls: true, wheel: true, /*startScale: 0.75,*/ maxScale: 1};
+    var zoomSettings = [{},{},{}, {}, {}];
+    /* Bug: startScale doesn't seem to work properly with initial blocks? */
+    for( var i = 1; i <= 6; i++ ) {
+      workspace[i-1] = Blockly.inject('blocklyDiv'+i,
+        {
+          media: '../blockly/media/',
+          toolbox: goog.dom.getElement( 'q'+i+'toolbox' ),
+          disable: false,
+          toggleInline: false,
+          zoom: zoomSettings[i-1],
+        });
+      reset( i );
+    }
+  </script>
+
+  
+</body>
+</html>

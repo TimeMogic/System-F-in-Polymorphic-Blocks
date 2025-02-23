@@ -1,0 +1,220 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <title>Lambda Expression Builder</title>
+    <link href="main-html.css" rel="stylesheet" type="text/css" />
+    <div id="headerbar">
+        <div id="titlebar">
+            <div id="tagline" class="largeheader">System F in Polymorphic Blocks</div>
+        </div>
+        <div id="navbar">
+            <div>
+                <div id="menulist">
+                    <a class="menuitem" href="lambda-test.html">Builder</a>
+                    <a class="menuitem" href="lambda-intro.html">Introduction</a>
+                    <a class="menuitem" href="lambda-exercise.html">Exercise</a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script type="text/x-mathjax-config">
+        /* Configure MathJax */
+        MathJax.Hub.Config({
+          config: ["MMLorHTML.js"],
+          jax: ["input/TeX", "output/HTML-CSS", "output/NativeMML", "output/CommonHTML", "output/SVG"],
+          extensions: ["tex2jax.js"],
+          TeX: {
+            extensions: ["AMSmath.js","AMSsymbols.js","noErrors.js","noUndefined.js"]
+          },
+          skipStartupTypeset: true,
+          positionToHash: false,
+          showMathMenu: false,
+          showMathMenuMSIE: false
+        });
+    </script>
+    <script src="../js/utils.js"></script>
+    <script>loadMathjax();</script>
+    <script src="https://unpkg.com/blockly/blockly.min.js"></script>
+
+    <script src="../blockly/blockly_compressed.js"></script>
+    <script src="../blockly/blocks_compressed.js"></script>
+    <script src="../blockly/javascript_compressed.js"></script>
+
+    <script src="../blockly/msg/js/en.js"></script>
+    <script src="../blockly-type-indicator/typeIndicator.js"></script> <!-- indicate matching slots when dragging block !-->
+    <script src="../js/field_mathvariable.js"></script>
+
+    <script src="../js/latex-generator.js"></script>
+    <script src="../js/lambda-latex.js"></script>
+
+    <script>function showLatexSource() {goog.dom.getElement("latex-output").style.display = "block";}</script>
+    <style>
+        .row {display: flex; margin: 20px 0;}
+        .flex-between {justify-content: space-between;}
+        .half-width {width: 48%; padding: 10px; border: 1px solid #ccc; min-height: 100px;}
+    </style>
+</head>
+<body>
+
+<h1>
+    Builder - Lambda Expressions in Blockly
+</h1>
+
+<div id="blocklyDiv" style="height: 500px; width: 100%;"></div>
+
+<div id="latex-container">
+    <div id="mathjax-output" style="text-align: center;"></div>
+    <pre id="latex-output" style="text-align: center; display: none;"></pre>
+</div>
+
+<div id="buttons" class="button-row">
+    <button onclick="generateCode()">Generate JavaScript</button>
+    <button onclick="runCode()">Run JavaScript</button>
+</div>
+
+<div id="output" class="row flex-between">
+    <div id="codeDiv" class="half-width"></div>
+    <div id="outputDiv" class="half-width"></div>
+</div>
+
+<!--<div class="debug">-->
+<!--    <a href="#" onclick="dumpXML();">(dump XML)</a>&nbsp;<a href="#" onclick="showLatexSource();">(show Latex source)</a>-->
+<!--</div>-->
+
+<xml id="toolbox">
+    <script src="../js/lambda-blocks.js"></script>  <!-- Load custom blocks !-->
+    <!-- lambda blocks !-->
+    <category name="λ">
+
+        <block type="bool"></block>
+        <block type="comp"></block>
+        <block type="arithmetic"></block>
+        <block type="number"></block>
+        <block type="var"></block>
+        <block type="func"></block>
+        <block type="app"></block>
+        <block type="abs"></block>
+        <block type="absF"></block>
+    </category>
+    <category name="Λ">
+        <block type="typeAbs"></block>
+        <block type="typeApp"></block>
+        <block type="typeVari"></block>
+        <block type="types"></block>
+        <block type="typeFunc"></block>
+        <block type="typeUniv"></block>
+    </category>
+
+    <category name="id">
+        <block type="typeAbs">
+            <field name="VAR">X</field>
+            <value name="TERM">
+                <block type="abs">
+                    <field name="VAR">x</field>
+                    <field name="TYPE">X</field>
+                    <value name="TERM">
+                        <block type="var">
+                            <field name="VARNAME">x</field>
+                        </block>
+                    </value>
+                </block>
+            </value>
+        </block>
+
+        <block type="typeUniv" id="MFX+oxQp;[[_+6uRa)*J">
+            <value name="TERM">
+                <block type="abs" id="6/8T!gQ*,D?*RUNRynp3">
+                    <field name="TYPE">X</field>
+                    <value name="TERM">
+                        <block type="var" id="Jr{b*jBHteQRO#N;X3,6"></block>
+                    </value>
+                </block>
+            </value>
+        </block>
+    </category>
+    <category name="two">
+        <block type="typeAbs">
+            <field name="VAR">X</field>
+            <value name="TERM">
+                <block type="absF">
+                    <field name="VAR">f</field>
+                    <field name="TYPE">X → X</field>
+                    <value name="TERM">
+                        <block type="abs">
+                            <field name="VAR">x</field>
+                            <field name="TYPE">X</field>
+                            <value name="TERM">
+                                <block type="app">
+                                    <value name="TERM1">
+                                        <block type="func">
+                                            <field name="VARNAME">f</field>
+                                        </block>
+                                    </value>
+                                    <value name="TERM2">
+                                        <block type="app">
+                                            <value name="TERM1">
+                                                <block type="var">
+                                                    <field name="VARNAME">f</field>
+                                                </block>
+                                            </value>
+                                            <value name="TERM2">
+                                                <block type="var">
+                                                    <field name="VARNAME">x</field>
+                                                </block>
+                                            </value>
+                                        </block>
+                                    </value>
+                                </block>
+                            </value>
+                        </block>
+                    </value>
+                </block>
+            </value>
+        </block>
+    </category>
+
+
+
+</xml>
+
+<script>
+    var workspace = Blockly.inject('blocklyDiv',
+        {
+            media: '../blockly/media/',
+            toolbox: document.getElementById('toolbox'),
+            zoom: {controls: true, wheel: false},
+            disable: false,
+            toggleInline: false
+        });
+    setupAutoLatex(workspace);
+
+    var xmlString = '<xml xmlns="https://developers.google.com/blockly/xml"><block type="app" id="|*nT426^Js?MG3aO+bXD" x="68" y="78"><value name="EXPR1"><block type="abs" id="7znB^lm.*76=$cfE_3rX"><value name="VAR"><block type="var" id="k)Q]$^YH;K77M[S%?:31"><field name="NAME">x</field></block></value><value name="EXPR"><block type="math_arithmetic" id="_OOsz0y!G?ZALI6*!p:0"><field name="OP">ADD</field><value name="A"><block type="var" id="~y[MCf2?m(5ttw;tYt+z"><field name="NAME">x</field></block></value><value name="B"><block type="math_number" id="A[Y|QmJ8,)wWo6TU-[Xt"><field name="NUM">1</field></block></value></block></value></block></value><value name="EXPR2"><block type="math_number" id="sYHQvj3I3*+5jya=0}0("><field name="NUM">2</field></block></value></block></xml>';
+    var parser = new DOMParser();
+    var xmlDoc = parser.parseFromString(xmlString, "text/xml");
+    var serializer = new XMLSerializer();
+    window.defaultBlocks = serializer.serializeToString(xmlDoc);
+
+
+    var defaultBlocksDom = Blockly.utils.xml.textToDom(defaultBlocks);
+    Blockly.Xml.domToWorkspace(defaultBlocksDom, workspace);
+
+    function generateCode() {
+        var code = Blockly.JavaScript.workspaceToCode(workspace);
+        document.getElementById('codeDiv').innerText = code;
+    }
+
+    function runCode() {
+        var code = Blockly.JavaScript.workspaceToCode(workspace);
+        try {
+            var output = eval(code);
+            document.getElementById('outputDiv').innerText = output;
+        } catch (e) {
+            document.getElementById('outputDiv').innerText = 'Error: ' + e;
+        }
+    }
+</script>
+
+</body>
+</html>

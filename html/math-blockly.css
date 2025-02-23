@@ -1,0 +1,65 @@
+body {
+  background-color: #fff;
+  font-family: sans-serif;
+}
+
+h1 {
+  font-weight: normal;
+  font-size: 140%;
+}
+
+/* Hide block highlight SVG elements while hacking */
+/*.blocklyPathLight {
+  display: none;
+}
+*/
+
+#blocklyDiv, .blocklyWorkspace {
+  margin-top: 1em;
+  margin-bottom: 1em;
+}
+
+.question {
+  display: none;
+}
+
+/* One question in multi-question page eg logic-exercise.html */
+.q {
+  margin-bottom: 1em;
+  padding-top: 1em;
+}
+
+.red {
+  color: red;
+}
+
+xml {
+  display: none;
+}
+
+.debug {
+  display: none;
+  float: right;
+  font-size: small;
+}
+
+/* The following are rules for SVG so use different properties than HTML, eg 'fill' rather than 'background' */
+.blocklyFlydown {
+  fill: rgb(191,191,191);
+	fill-opacity: 0.8;
+}
+
+/* Force blue background colour for number variable in quantifier block */
+.blocklyEditableText.blocklyQuantifierVarField > rect {
+  fill: rgb(189, 194, 219);
+  fill-opacity: 1;
+  /* Give the field a darker blue border */
+  stroke-width: 1.5;
+  stroke: rgb(100, 113, 177);  /*  Number block colour is rgb(91, 103, 160) */
+}
+
+/* Red background for clashing variables */
+.blocklyMathVariableError > rect {
+  fill: rgb(255, 192, 192) !important;
+  fill-opacity: 1 !important;
+}
