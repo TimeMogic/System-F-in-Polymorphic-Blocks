@@ -10,7 +10,7 @@ Blockly.Blocks['abs'] = {
         .appendField(varField, "VAR");
     this.appendDummyInput("T")
         .appendField(":")
-        .appendField(new Blockly.FieldDropdown([ ['Int', 'Int'],['Bool', 'Bool'],['A','A'], ['B','B'],['X','X'], ['Y','Y']],
+        .appendField(new Blockly.FieldDropdown([ ['Int', 'Int'],['Bool', 'Bool']],
             function(type) { this.sourceBlock_.changed_(type) }), 'TYPE');
     this.appendValueInput("TERM")
         .setTypeExpr(B)
@@ -40,6 +40,35 @@ Blockly.Blocks['abs'] = {
   }
 };
 Blockly.JavaScript['abs'] = function(block) {
+  var var_name = block.getFieldValue('VAR');
+  var term_code = Blockly.JavaScript.valueToCode(block, 'TERM', Blockly.JavaScript.ORDER_NONE);
+  var code = '(' + var_name + ' => ' + term_code + ')';
+  return [code, Blockly.JavaScript.ORDER_FUNCTION_CALL];
+};
+
+Blockly.Blocks['absV'] = {
+  init: function() {
+    var varField = new Blockly.FieldMathVariable("x", "Number", null, true);
+    varField.addCSSClass( "blocklyQuantifierVarField" );
+    var A = Blockly.TypeVar.getUnusedTypeVar();
+    var B = Blockly.TypeVar.getUnusedTypeVar();
+    this.appendDummyInput("V")
+        .appendField("λ")
+        .appendField(varField, "VAR");
+    this.appendDummyInput("T")
+        .appendField(":")
+        .appendField(new Blockly.FieldMathVariable("X", "Vector"), "TYPE");
+    this.appendValueInput("TERM")
+        .setTypeExpr(B)
+        .appendField(".");
+    this.setInputsInline(true);
+    this.setOutput(true);
+    this.setOutputTypeExpr(new Blockly.TypeExpr ("fun", [A, B]));
+    this.setColourByType();
+    this.setTooltip("abstraction");
+  }
+};
+Blockly.JavaScript['absV'] = function(block) {
   var var_name = block.getFieldValue('VAR');
   var term_code = Blockly.JavaScript.valueToCode(block, 'TERM', Blockly.JavaScript.ORDER_NONE);
   var code = '(' + var_name + ' => ' + term_code + ')';

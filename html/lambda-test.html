@@ -11,6 +11,7 @@
         <div id="navbar">
             <div>
                 <div id="menulist">
+                    <a class="menuitem" href="../index.html">About</a>
                     <a class="menuitem" href="lambda-test.html">Builder</a>
                     <a class="menuitem" href="lambda-intro.html">Introduction</a>
                     <a class="menuitem" href="lambda-exercise.html">Exercise</a>
@@ -48,6 +49,7 @@
 
     <script src="../js/latex-generator.js"></script>
     <script src="../js/lambda-latex.js"></script>
+    <script src="../js/lambda-blocks.js"></script>  <!-- Load custom blocks !-->
 
     <script>function showLatexSource() {goog.dom.getElement("latex-output").style.display = "block";}</script>
     <style>
@@ -84,9 +86,9 @@
 <!--</div>-->
 
 <xml id="toolbox">
-    <script src="../js/lambda-blocks.js"></script>  <!-- Load custom blocks !-->
+
     <!-- lambda blocks !-->
-    <category name="λ">
+    <category name="λ - lambda calculus">
 
         <block type="bool"></block>
         <block type="comp"></block>
@@ -96,9 +98,10 @@
         <block type="func"></block>
         <block type="app"></block>
         <block type="abs"></block>
+        <block type="absV"></block>
         <block type="absF"></block>
     </category>
-    <category name="Λ">
+    <category name="Λ - type operations">
         <block type="typeAbs"></block>
         <block type="typeApp"></block>
         <block type="typeVari"></block>
@@ -107,7 +110,7 @@
         <block type="typeUniv"></block>
     </category>
 
-    <category name="id">
+    <category name="Identity Function">
         <block type="typeAbs">
             <field name="VAR">X</field>
             <value name="TERM">
@@ -122,19 +125,8 @@
                 </block>
             </value>
         </block>
-
-        <block type="typeUniv" id="MFX+oxQp;[[_+6uRa)*J">
-            <value name="TERM">
-                <block type="abs" id="6/8T!gQ*,D?*RUNRynp3">
-                    <field name="TYPE">X</field>
-                    <value name="TERM">
-                        <block type="var" id="Jr{b*jBHteQRO#N;X3,6"></block>
-                    </value>
-                </block>
-            </value>
-        </block>
     </category>
-    <category name="two">
+    <category name="Church Numeral two">
         <block type="typeAbs">
             <field name="VAR">X</field>
             <value name="TERM">
@@ -174,8 +166,6 @@
             </value>
         </block>
     </category>
-
-
 
 </xml>
 

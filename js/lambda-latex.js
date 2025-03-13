@@ -52,6 +52,11 @@ Blockly.Latex['abs'] = function(block) {
       + " . " + (Blockly.Latex.valueToCode(block, "TERM", Blockly.Latex.ORDER_SET_SET) || Blockly.Latex.blank);
   return [str, Blockly.Latex.ORDER_SET_MEMBERSHIP];
 };
+Blockly.Latex['absV'] = function(block) {
+  var str = "\\lambda " + (block.getFieldValue("VAR") || Blockly.Latex.blank) + ":" + (block.getFieldValue("TYPE") || Blockly.Latex.blank)
+      + " . " + (Blockly.Latex.valueToCode(block, "TERM", Blockly.Latex.ORDER_SET_SET) || Blockly.Latex.blank);
+  return [str, Blockly.Latex.ORDER_SET_MEMBERSHIP];
+};
 Blockly.Latex['absF'] = function(block) {
   var str = "\\lambda " + (block.getFieldValue("VAR") || Blockly.Latex.blank) + ":" + (block.getFieldValue("TYPE") || Blockly.Latex.blank)
       + " . " + (Blockly.Latex.valueToCode(block, "TERM", Blockly.Latex.ORDER_SET_SET) || Blockly.Latex.blank);
