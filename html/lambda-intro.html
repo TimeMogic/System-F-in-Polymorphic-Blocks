@@ -70,12 +70,33 @@
 </head>
 <body>
   <h1>Typed Lambda Calculus in Blockly</h1>
-  
-  <p><br><span style="font-style: italic;">Let's start with the basics, here we have some examples of typed lambda expression and their from in Blockly Blocks.</span></p>
+   <p>Typed lambda calculus is a formal system in mathematical logic and computer science that extends the untyped lambda calculus by assigning types to terms. It provides a framework for expressing computations through function abstraction and application, ensuring that operations are performed on terms of appropriate types. This type system enhances reliability and serves as a foundation for functional programming languages like Haskell.</p>
+    <p>The building blocks of typed lambda calculus are called terms, which can be one of three forms:</p>
+    <ul>
+      <li><strong>Variables</strong>: Symbols such as <code>x</code>, <code>y</code>, or <code>z</code> that represent values or placeholders.</li>
+      <li><strong>Abstractions</strong>: Expressions written as <code>λx.t</code>, where <code>x</code> is a variable and <code>t</code> is a term. This denotes a function that takes <code>x</code> as input and returns <code>t</code>. For example, <code>λx.x</code> is the identity function, which outputs its input unchanged.</li>
+      <li><strong>Applications</strong>: Expressions of the form <code>t s</code>, where <code>t</code> and <code>s</code> are terms. This represents applying the function <code>t</code> to the argument <code>s</code>. For instance, <code>(λx.x) y</code> applies the identity function to <code>y</code>, yielding <code>y</code>.</li>
+    </ul>
+    <p>Every term has an associated type, which restricts how terms can be combined:</p>
+    <ul>
+      <li><strong>Base Types</strong>: Simple types like <code>int</code>, <code>bool</code>, or abstract symbols like <code>α</code> and <code>β</code>.</li>
+      <li><strong>Function Types</strong>: Types written as <code>A → B</code>, where <code>A</code> is the input type and <code>B</code> is the output type. For example, <code>λx.x</code> has type <code>A → A</code>, meaning it takes an input of type <code>A</code> and returns a value of the same type <code>A</code>.</li>
+    </ul>
+  <div>
+    Below is a syntax table of typed lambda calculus taken from Types and Programming Languages by Benjamin C. Pierce. If you are interested in further concepts and explanations of the system F, please refer to the book.
+  </div>
+  <img src="syntax.png" alt="syntax table" width="660" height="540">
 
+  <p>Below, we will introduce how the above concept is represented in Blockly.</p>
+  <img src="b1.png" height="100">
+  <img src="b2.png" height="100">
+  <p><br><span style="font-style: italic;">Shown in the left figure above, you can tell the type of each block by its edge, each native type is defined in various shapesand variable type is defined as coloured square edges.</span></p>
+  <p><br><span style="font-style: italic;">See in the right figure above, as according to this representation pattern, abstraction and their variants all process a function type.
+    And under this pattern, the type of its output should be the defined output type of the function that will be going through the application, this is shown by the two blue coloured edges in the application block above. </span></p>
+<h2>Examples in Blockly</h2>
   <div class="q">
     <div>
-      Here the λ symbol represents the lambda abstraction, :[Int] represents its type is Integer, the dot separates the variable to be substituted from the expression body.
+      Here the λ symbol represents the lambda abstraction: [Int] represents its type is Integer, the dot separates the variable to be substituted from the expression body.
       The expression below represents a function that takes an integer and returns the integer plus one, and 2 is the input value.
       \[
       (\lambda x:[Int].x≠1)(2)
