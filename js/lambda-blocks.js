@@ -150,7 +150,7 @@ Blockly.Blocks['absFv'] = {
         .appendField("→")
         .appendField(new Blockly.FieldMathVariable("Y", "Vector"), "TYPE2");
     this.appendValueInput("TERM")
-        .setTypeExpr(B)
+        .setTypeExpr(C)
         .appendField(".");
     this.setInputsInline(true);
     this.setOutput(true);
