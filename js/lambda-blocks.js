@@ -84,8 +84,7 @@ Blockly.Blocks['absF'] = {
         .appendField(new Blockly.FieldMathVariable("f"), "VAR");
     this.appendDummyInput("T")
         .appendField(":")
-        .appendField(new Blockly.FieldDropdown([ ['Int → Int', 'Int → Int'],['Bool → Bool', 'Bool → Bool'],['Int → Bool', 'Int → Bool'],['Bool → Int', 'Bool → Int'],
-              ['A → A','A → A'], ['B → B','B → B'],['A → B','A → B'], ['B → A','B → A'],['X → X','X → X'], ['Y → Y','Y → Y'],['X → Y','X → Y'], ['Y → X','Y → X']],
+        .appendField(new Blockly.FieldDropdown([['Int → Int', 'Int → Int'],['Bool → Bool', 'Bool → Bool'],['Int → Bool', 'Int → Bool'],['Bool → Int', 'Bool → Int']],
             function(type) { this.sourceBlock_.changed_(type) }), 'TYPE');
     this.appendValueInput("TERM")
         .setTypeExpr(B)
@@ -129,6 +128,38 @@ Blockly.Blocks['absF'] = {
   }
 };
 Blockly.JavaScript['absF'] = function(block) {
+  var var_name = block.getFieldValue('VAR');
+  var term_code = Blockly.JavaScript.valueToCode(block, 'TERM', Blockly.JavaScript.ORDER_NONE);
+  var code = '(' + var_name + ' => ' + term_code + ')';
+  return [code, Blockly.JavaScript.ORDER_FUNCTION_CALL];
+};
+
+
+Blockly.Blocks['absFv'] = {
+  init: function() {
+    var A = Blockly.TypeVar.getUnusedTypeVar();
+    var B = Blockly.TypeVar.getUnusedTypeVar();
+    var C = Blockly.TypeVar.getUnusedTypeVar();
+    this.appendDummyInput("V")
+        .appendField("λ")
+        .appendField(new Blockly.FieldMathVariable("f"), "VAR");
+    this.appendDummyInput("T1")
+        .appendField(":")
+        .appendField(new Blockly.FieldMathVariable("X", "Vector"), "TYPE1");
+    this.appendDummyInput("T2")
+        .appendField("→")
+        .appendField(new Blockly.FieldMathVariable("Y", "Vector"), "TYPE2");
+    this.appendValueInput("TERM")
+        .setTypeExpr(B)
+        .appendField(".");
+    this.setInputsInline(true);
+    this.setOutput(true);
+    this.setOutputTypeExpr(new Blockly.TypeExpr ("fun", [new Blockly.TypeExpr ("fun", [A, B]), C]));
+    this.setColourByType();
+    this.setTooltip("abstraction");
+  }
+};
+Blockly.JavaScript['absFv'] = function(block) {
   var var_name = block.getFieldValue('VAR');
   var term_code = Blockly.JavaScript.valueToCode(block, 'TERM', Blockly.JavaScript.ORDER_NONE);
   var code = '(' + var_name + ' => ' + term_code + ')';
